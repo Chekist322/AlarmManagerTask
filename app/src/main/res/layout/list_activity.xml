@@ -54,7 +54,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/text_view_rect"
             android:orientation="vertical">
 
             <TextView
@@ -133,11 +132,13 @@
                 android:gravity="center"
                 android:text="@string/job_scheduler_header"
                 android:textColor="@android:color/background_light"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                android:visibility="invisible"/>
 
             <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:visibility="invisible"/>
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

@@ -196,6 +196,6 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         System.out.println(sTimeMinute);
         System.out.println(calendar.getTimeInMillis());
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 5, mAlarmIntent);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mAlarmIntent);
     }
 }
