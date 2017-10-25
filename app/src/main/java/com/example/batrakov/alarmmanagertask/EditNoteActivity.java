@@ -3,9 +3,11 @@ package com.example.batrakov.alarmmanagertask;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.Dialog;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
@@ -13,13 +15,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.v4.app.AlarmManagerCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -30,6 +33,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -49,15 +53,19 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
     Button mCancelButton;
     CheckBox mRepeatableCheckBox;
     EditText mAlarmLabel;
-    PendingIntent mAlarmIntent;
     int mRepeatInterval;
-    Handler mHandler;
 
-    private static int sTimeHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-    private static int sTimeMinute = Calendar.getInstance().get(Calendar.MINUTE);
+    private static int sTimeHour;
+    private static int sTimeMinute;
 
     public static final String TIME_HOUR = "hour";
     public static final String TIME_MINUTE = "minute";
+    public static final String REPEATABLE = "repeatable";
+    public static final String REPEAT_INTERVAL = "interval";
+    public static final String LABEL = "label";
+    public static final String ALARM = "alarm";
+    public static final String TIME = "time";
+    public static final int JOB_SCHEDULER_ID = 0;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -73,6 +81,23 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         mRepeatableCheckBox = (CheckBox) findViewById(R.id.checkbox_repeat);
         mAlarmLabel = (EditText) findViewById(R.id.alarm_label);
 
+        if (getIntent().hasExtra(MainActivity.CHANGE_ELEMENT)) {
+            Alarm changeableAlarm = (Alarm) getIntent().getSerializableExtra(MainActivity.CHANGE_ELEMENT);
+            sTimeHour = changeableAlarm.getTargetHour();
+            sTimeMinute = changeableAlarm.getTargetMinute();
+            mTimePicker.setText(changeableAlarm.getTimeString());
+            if (changeableAlarm.isRepeatable()) {
+                mRepeatableCheckBox.setChecked(true);
+            }
+            mAlarmLabel.setText(changeableAlarm.getLabel());
+        } else {
+            sTimeHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            sTimeMinute = Calendar.getInstance().get(Calendar.MINUTE);
+            Date currentTime = Calendar.getInstance().getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
+            mTimePicker.setText(sdf.format(currentTime.getTime()));
+        }
+
         setSupportActionBar(mToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -85,9 +110,6 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mIntervalChoice.setAdapter(adapter);
 
-        Date currentTime = Calendar.getInstance().getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
-        mTimePicker.setText(sdf.format(currentTime.getTime()));
         mTimePicker.setTextColor(getResources().getColorStateList(R.color.text_view_colors, null));
         mTimePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,12 +129,20 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         mConfirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchAlarm();
+                buildAlarm();
             }
         });
+
+
     }
 
-    class TimePickerHandler extends Handler {
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_CANCELED);
+        super.onBackPressed();
+    }
+
+    private static class TimePickerHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
@@ -141,7 +171,7 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
 
         Handler mHandler;
 
-        public TimePickerFragment (Handler aHandler) {
+        public TimePickerFragment(Handler aHandler) {
             mHandler = aHandler;
         }
 
@@ -182,20 +212,14 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         }
     }
 
-    private void launchAlarm() {
+    private void buildAlarm() {
+            Intent dataToMainActivity = new Intent().putExtra(ALARM, new Alarm(mRepeatableCheckBox.isChecked(),
+                            mRepeatInterval,
+                            sTimeHour,
+                            sTimeMinute,
+                            String.valueOf(mAlarmLabel.getText())));
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        mAlarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, sTimeHour);
-        calendar.set(Calendar.MINUTE, sTimeMinute);
-
-        System.out.println(sTimeHour);
-        System.out.println(sTimeMinute);
-        System.out.println(calendar.getTimeInMillis());
-
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), mAlarmIntent);
+            setResult(RESULT_OK, dataToMainActivity);
+            finish();
     }
 }

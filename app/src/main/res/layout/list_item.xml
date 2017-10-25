@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/list_item"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/job_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
@@ -27,7 +28,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/job_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="10dp"
@@ -35,7 +36,7 @@
                 android:textSize="24sp"/>
 
             <CheckBox
-                android:id="@+id/checkBox"
+                android:id="@+id/job_repeatable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="false"
@@ -50,7 +51,7 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/button5"
+                android:id="@+id/job_cancel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/add_button_rect"

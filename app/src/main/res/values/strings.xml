@@ -4,12 +4,14 @@
     <string name="touch_time">13:37</string>
     <string name="label">Label</string>
     <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
     <string name="start">Start</string>
     <string name="alarm_manager_header">Alarm manager</string>
     <string name="job_scheduler_header">Job scheduler</string>
     <string-array name="sec_array">
-        <item>5 sec</item>
         <item>10 sec</item>
         <item>15 sec</item>
+        <item>30 sec</item>
+        <item>60 sec</item>
     </string-array>
 </resources>
