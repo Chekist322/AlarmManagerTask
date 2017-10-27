@@ -1,28 +1,20 @@
 package com.example.batrakov.alarmmanagertask;
 
 import android.annotation.TargetApi;
-import android.app.AlarmManager;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,7 +25,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -41,43 +32,54 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by batrakov on 24.10.17.
+ * Activity that provide to create new Alarm and Job clocks and edit Alarm clock.
+ * Include TimePickerFragment. Build new Alarm and send it to MainActivity.
+ * Child of MainActivity.
  */
-
 public class EditNoteActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    Toolbar mToolbar;
-    TextView mTimePicker;
-    Spinner mIntervalChoice;
-    Button mConfirmButton;
-    Button mCancelButton;
-    CheckBox mRepeatableCheckBox;
-    EditText mAlarmLabel;
-    int mRepeatInterval;
+    private CheckBox mRepeatableCheckBox;
+    private EditText mAlarmLabel;
+    private int mRepeatInterval;
 
     private static int sTimeHour;
     private static int sTimeMinute;
 
+    private int mId;
+
+    /**
+     * Tag for taken hour.
+     */
     public static final String TIME_HOUR = "hour";
+
+    /**
+     * Tag for taken minute.
+     */
     public static final String TIME_MINUTE = "minute";
-    public static final String REPEATABLE = "repeatable";
-    public static final String REPEAT_INTERVAL = "interval";
+
+    /**
+     * Tag for entered clock label.
+     */
     public static final String LABEL = "label";
+
+    /**
+     * Tag for built alarm.
+     */
     public static final String ALARM = "alarm";
-    public static final String TIME = "time";
-    public static final int JOB_SCHEDULER_ID = 0;
+
+    private static final int BORDER_FOR_CONCAT_TIME = 9;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(@Nullable Bundle aSavedInstanceState) {
+        super.onCreate(aSavedInstanceState);
         setContentView(R.layout.edit_alarm_ativity);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mTimePicker = (TextView) findViewById(R.id.trigger_time);
-        mIntervalChoice = (Spinner) findViewById(R.id.interval_repeat);
-        mIntervalChoice.setOnItemSelectedListener(this);
-        mConfirmButton = (Button) findViewById(R.id.confirm_button);
-        mCancelButton = (Button) findViewById(R.id.cancel_button);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        TextView timePicker = (TextView) findViewById(R.id.trigger_time);
+        Spinner intervalChoice = (Spinner) findViewById(R.id.interval_repeat);
+        intervalChoice.setOnItemSelectedListener(this);
+        Button confirmButton = (Button) findViewById(R.id.confirm_button);
+        Button cancelButton = (Button) findViewById(R.id.cancel_button);
         mRepeatableCheckBox = (CheckBox) findViewById(R.id.checkbox_repeat);
         mAlarmLabel = (EditText) findViewById(R.id.alarm_label);
 
@@ -85,7 +87,7 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
             Alarm changeableAlarm = (Alarm) getIntent().getSerializableExtra(MainActivity.CHANGE_ELEMENT);
             sTimeHour = changeableAlarm.getTargetHour();
             sTimeMinute = changeableAlarm.getTargetMinute();
-            mTimePicker.setText(changeableAlarm.getTimeString());
+            timePicker.setText(changeableAlarm.getTimeString());
             if (changeableAlarm.isRepeatable()) {
                 mRepeatableCheckBox.setChecked(true);
             }
@@ -95,40 +97,46 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
             sTimeMinute = Calendar.getInstance().get(Calendar.MINUTE);
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat sdf = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
-            mTimePicker.setText(sdf.format(currentTime.getTime()));
+            timePicker.setText(sdf.format(currentTime.getTime()));
         }
 
-        setSupportActionBar(mToolbar);
+
+        setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            if (getIntent().getAction().equals(MainActivity.ALARM_MANAGER)) {
+                getSupportActionBar().setTitle(getString(R.string.alarm_manager_header));
+            } else {
+                getSupportActionBar().setTitle(getString(R.string.job_scheduler_header));
+            }
+
         }
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sec_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mIntervalChoice.setAdapter(adapter);
+        intervalChoice.setAdapter(adapter);
 
-        mTimePicker.setTextColor(getResources().getColorStateList(R.color.text_view_colors, null));
-        mTimePicker.setOnClickListener(new View.OnClickListener() {
+        timePicker.setTextColor(getResources().getColorStateList(R.color.text_view_colors, null));
+        timePicker.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View aView) {
                 DialogFragment newFragment = new TimePickerFragment(new TimePickerHandler());
                 newFragment.show(getSupportFragmentManager(), "timePicker");
             }
         });
 
-        mCancelButton.setOnClickListener(new View.OnClickListener() {
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View aView) {
                 onBackPressed();
             }
         });
 
-        mConfirmButton.setOnClickListener(new View.OnClickListener() {
+        confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View aView) {
                 buildAlarm();
             }
         });
@@ -142,19 +150,22 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         super.onBackPressed();
     }
 
+    /**
+     * Allow to get taken time from TimePicker dialog fragment.
+     */
     private static class TimePickerHandler extends Handler {
         @Override
-        public void handleMessage(Message msg) {
-            Bundle bundle = msg.getData();
+        public void handleMessage(Message aMsg) {
+            Bundle bundle = aMsg.getData();
             sTimeHour = bundle.getInt(TIME_HOUR);
             sTimeMinute = bundle.getInt(TIME_MINUTE);
-            super.handleMessage(msg);
+            super.handleMessage(aMsg);
         }
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Matcher matcher = Pattern.compile("\\d+").matcher((String) parent.getItemAtPosition(position));
+    public void onItemSelected(AdapterView<?> aParent, View aView, int aPosition, long aId) {
+        Matcher matcher = Pattern.compile("\\d+").matcher((String) aParent.getItemAtPosition(aPosition));
         String interval;
         if (matcher.find()) {
             interval = matcher.group();
@@ -163,44 +174,57 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public void onNothingSelected(AdapterView<?> aParent) {
     }
 
+    /**
+     * Allow to get trigger time from cute round clock UI.
+     */
     public static class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
-        Handler mHandler;
+        private Handler mHandler;
 
+        /**
+         * Constructor.
+         *
+         * @param aHandler handler that allow to send data to external Activity.
+         */
         public TimePickerFragment(Handler aHandler) {
             mHandler = aHandler;
         }
 
+        @NonNull
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            // Use the current time as the default values for the picker
+        public Dialog onCreateDialog(Bundle aSavedInstanceState) {
             final Calendar c = Calendar.getInstance();
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int minute = c.get(Calendar.MINUTE);
 
-            // Create a new instance of TimePickerDialog and return it
             return new TimePickerDialog(getActivity(), this, hour, minute,
                     DateFormat.is24HourFormat(getActivity()));
         }
 
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            // Do something with the time chosen by the user
+        /**
+         * Collects and send time data.
+         *
+         * @param aView TimePicker View.
+         * @param aHourOfDay taken hour.
+         * @param aMinute  taken minute.
+         */
+        public void onTimeSet(TimePicker aView, int aHourOfDay, int aMinute) {
             Bundle bundle = new Bundle();
-            bundle.putInt(TIME_HOUR, hourOfDay);
-            bundle.putInt(TIME_MINUTE, minute);
+            bundle.putInt(TIME_HOUR, aHourOfDay);
+            bundle.putInt(TIME_MINUTE, aMinute);
             TextView textView = getActivity().findViewById(R.id.trigger_time);
-            String hourStr = String.valueOf(hourOfDay);
-            String minuteStr = String.valueOf(minute);
+            String hourStr = String.valueOf(aHourOfDay);
+            String minuteStr = String.valueOf(aMinute);
             String targetTime;
             if (textView != null) {
-                if (hourOfDay <= 9) {
+                if (aHourOfDay <= BORDER_FOR_CONCAT_TIME) {
                     hourStr = "0" + hourStr;
                 }
-                if (minute <= 9) {
+                if (aMinute <= BORDER_FOR_CONCAT_TIME) {
                     minuteStr = "0" + minuteStr;
                 }
                 targetTime = hourStr + ":" + minuteStr;
@@ -212,13 +236,15 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         }
     }
 
+    /**
+     * Assemble data to {@link Alarm} object and send it to MainActivity.
+     */
     private void buildAlarm() {
             Intent dataToMainActivity = new Intent().putExtra(ALARM, new Alarm(mRepeatableCheckBox.isChecked(),
                             mRepeatInterval,
                             sTimeHour,
                             sTimeMinute,
                             String.valueOf(mAlarmLabel.getText())));
-
             setResult(RESULT_OK, dataToMainActivity);
             finish();
     }

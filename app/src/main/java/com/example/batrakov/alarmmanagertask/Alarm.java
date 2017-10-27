@@ -3,69 +3,147 @@ package com.example.batrakov.alarmmanagertask;
 import java.io.Serializable;
 
 /**
- * Created by batrakov on 25.10.17.
+ * Represents single Alarm clock. Contains full alarm information.
  */
+class Alarm implements Serializable {
 
-public class Alarm implements Serializable {
-
+    private boolean mDone;
     private boolean mRepeatable;
     private int mInterval;
     private int mTargetHour;
     private int mTargetMinute;
-    private int mId;
     private String mLabel;
+    private int mJobId;
 
-    public Alarm(boolean aRepeatable, int aInterval, int aTargetHour, int aTargetMinute, String aLabel) {
+    private static final int BORDER_FOR_CONCAT_TIME = 9;
+
+    /**
+     * Constructor.
+     *
+     * @param aRepeatable flag means that alarm is repeatable or not
+     * @param aInterval repeat interval
+     * @param aTargetHour trigger hour
+     * @param aTargetMinute trigger minute
+     * @param aLabel label for alarm clock
+     */
+    Alarm(boolean aRepeatable, int aInterval, int aTargetHour, int aTargetMinute, String aLabel) {
         mRepeatable = aRepeatable;
         mInterval = aInterval;
         mTargetHour = aTargetHour;
         mTargetMinute = aTargetMinute;
         mLabel = aLabel;
+        if (mLabel.equals("")) {
+            mLabel = "no label";
+        }
+        mDone = false;
     }
 
-    public boolean isRepeatable() {
+    /**
+     * Is current alarm clock repeatable.
+     *
+     * @return {@code true} if repeatable
+     */
+    boolean isRepeatable() {
         return mRepeatable;
     }
 
-    public int getInterval() {
+    /**
+     * Get repeat interval.
+     *
+     * @return repeat interval
+     */
+    int getInterval() {
         return mInterval;
     }
 
-    public int getTargetHour() {
+    /**
+     * Get target hour.
+     *
+     * @return trigger hour
+     */
+    int getTargetHour() {
         return mTargetHour;
     }
 
-    public int getTargetMinute() {
+    /**
+     * Get target minute.
+     *
+     * @return trigger minute
+     */
+    int getTargetMinute() {
         return mTargetMinute;
     }
 
-    public String getTimeString() {
+    /**
+     * Get time in string.
+     *
+     * @return trigger minutes and hours in representative String.
+     */
+    String getTimeString() {
         String targetTime;
         String hourStr = String.valueOf(mTargetHour);
         String minuteStr = String.valueOf(mTargetMinute);
-        if (mTargetHour <= 9) {
+        if (mTargetHour <= BORDER_FOR_CONCAT_TIME) {
             hourStr = "0" + hourStr;
         }
-        if (mTargetMinute <= 9) {
+        if (mTargetMinute <= BORDER_FOR_CONCAT_TIME) {
             minuteStr = "0" + minuteStr;
         }
         targetTime = hourStr + ":" + minuteStr;
         return targetTime;
     }
 
-    public String getLabel() {
+    /**
+     * Get label.
+     *
+     * @return label for alarm clock.
+     */
+    String getLabel() {
         return mLabel;
     }
 
-    public void setLabel(String aLabel) {
+    /**
+     * Set label.
+     *
+     * @param aLabel target label.
+     */
+    void setLabel(String aLabel) {
         mLabel = aLabel;
     }
 
-    public int getId() {
-        return mId;
+    /**
+     * Is current clock finished.
+     *
+     * @return {@code true} if finished.
+     */
+    boolean isDone() {
+        return mDone;
     }
 
-    public void setId(int aId) {
-        mId = aId;
+    /**
+     * Set clock state.
+     *
+     * @param aDone target state.
+     */
+    void setDone(boolean aDone) {
+        mDone = aDone;
+    }
+
+    /**
+     * Get job id.
+     *
+     * @return JobInfo id.
+     */
+    int getJobId() {
+        return mJobId;
+    }
+
+    /**
+     * Set job id.
+     *
+     * @param aJobId target JobInfo id.
+     */
+    void setJobId(int aJobId) {
+        mJobId = aJobId;
     }
 }

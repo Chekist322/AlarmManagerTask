@@ -10,31 +10,36 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 /**
- * Created by batrakov on 25.10.17.
+ * Alarm Receiver class that allow to receive new alarm clock from AlarmManager.
+ * Send clock state to MainActivity. Build Notification about clock.
  */
-
 public class AlarmReceiver extends WakefulBroadcastReceiver {
 
+    /**
+     * Alarm clock Notification id.
+     */
     public static final int NOTIFICATION_ID = 0;
-    Messenger mMessengerOutgoing;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        mMessengerOutgoing = intent.getParcelableExtra(MainActivity.LINK_TO_MAIN_ACTIVITY);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+    public void onReceive(Context aContext, Intent aIntent) {
+        Messenger messengerOutgoing = aIntent.getParcelableExtra(MainActivity.LINK_TO_MAIN_ACTIVITY);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(aContext);
         builder.setContentTitle("AlarmManager notification")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
-                .setContentText(intent.getStringExtra(EditNoteActivity.LABEL))
+                .setContentText(aIntent.getStringExtra(EditNoteActivity.LABEL))
                 .setSmallIcon(R.mipmap.ic_launcher);
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager manager = (NotificationManager) aContext.getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(NOTIFICATION_ID, builder.build());
-        Message msg = Message.obtain();
-        msg.what = MainActivity.ALARM_MANAGER_CLOCK_DONE;
-        try {
-            mMessengerOutgoing.send(msg);
-        } catch (RemoteException aE) {
-            aE.printStackTrace();
+
+        if (!aIntent.getBooleanExtra(MainActivity.IS_JOB_REPEATABLE, false)) {
+            Message msg = Message.obtain();
+            msg.what = MainActivity.ALARM_MANAGER_CLOCK_DONE;
+            try {
+                messengerOutgoing.send(msg);
+            } catch (RemoteException aE) {
+                aE.printStackTrace();
+            }
         }
     }
 }

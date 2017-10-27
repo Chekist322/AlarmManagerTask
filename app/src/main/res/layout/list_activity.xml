@@ -2,7 +2,6 @@
 <android.support.design.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:stateListAnimator="@null">
@@ -30,7 +29,7 @@
                 android:background="@drawable/add_button_rect"
                 android:elevation="10dp"
                 android:stateListAnimator="@null"
-                app:srcCompat="@drawable/alarm_manager_add_button"/>
+                app:srcCompat="@drawable/job_scheduller_add_button"/>
 
             <ImageButton
                 android:id="@+id/add_alarm_manager"
@@ -42,18 +41,18 @@
                 android:background="@drawable/add_button_rect"
                 android:elevation="10dp"
                 android:stateListAnimator="@null"
-                app:srcCompat="@drawable/job_scheduller_add_button"/>
+                app:srcCompat="@drawable/alarm_manager_add_button"/>
         </LinearLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <TextView
@@ -71,13 +70,16 @@
             <LinearLayout
                 android:id="@+id/alaarm_manager_element"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp">
 
                 <TextView
                     android:id="@+id/label_alarm_manager"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bordered_rect"
                     android:padding="10dp"
                     android:text="TextView"
                     android:textSize="18sp"
@@ -95,7 +97,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@drawable/text_view_rect"
+                        android:background="@drawable/white_rect"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -153,5 +155,5 @@
                 android:visibility="visible"/>
 
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </android.support.design.widget.CoordinatorLayout>
 </android.support.design.widget.CoordinatorLayout>
