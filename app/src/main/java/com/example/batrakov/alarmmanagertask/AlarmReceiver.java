@@ -22,6 +22,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context aContext, Intent aIntent) {
+        System.out.println("kek");
         Messenger messengerOutgoing = aIntent.getParcelableExtra(MainActivity.LINK_TO_MAIN_ACTIVITY);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(aContext);
         builder.setContentTitle("AlarmManager notification")
