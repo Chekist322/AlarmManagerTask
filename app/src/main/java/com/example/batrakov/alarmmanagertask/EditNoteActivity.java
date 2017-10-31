@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Activity that provide to create new Alarm and Job clocks and edit Alarm clock.
@@ -95,7 +96,7 @@ public class EditNoteActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
-            if (getIntent().getAction().equals(MainActivity.ALARM_MANAGER)) {
+            if (Objects.equals(getIntent().getAction(), MainActivity.ALARM_MANAGER)) {
                 getSupportActionBar().setTitle(getString(R.string.alarm_manager_header));
             } else {
                 getSupportActionBar().setTitle(getString(R.string.job_scheduler_header));

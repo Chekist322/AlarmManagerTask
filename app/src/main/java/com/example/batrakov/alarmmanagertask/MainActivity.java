@@ -172,17 +172,19 @@ public class MainActivity extends AppCompatActivity {
         restoreAlarmManagerAlarmClock();
 
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();
-
-        for (int i = 0; i < allPendingJobs.size(); i++) {
-            System.out.println(allPendingJobs.size());
-            PersistableBundle persistableBundle = new PersistableBundle(allPendingJobs.get(i).getExtras());
-            Alarm restoredAlarm = new Alarm(persistableBundle.getBoolean(IS_JOB_REPEATABLE),
-                    persistableBundle.getInt(HOUR_TO_JOB_NOTIFICATION),
-                    persistableBundle.getInt(MINUTE_TO_JOB_NOTIFICATION),
-                    persistableBundle.getString(LABEL_TO_JOB_NOTIFICATION));
-            restoredAlarm.setJobId(allPendingJobs.get(i).getId());
-            mJobSchedulerAlarmClocks.add(restoredAlarm);
+        List<JobInfo> allPendingJobs;
+        if (jobScheduler != null) {
+            allPendingJobs = jobScheduler.getAllPendingJobs();
+            for (int i = 0; i < allPendingJobs.size(); i++) {
+                System.out.println(allPendingJobs.size());
+                PersistableBundle persistableBundle = new PersistableBundle(allPendingJobs.get(i).getExtras());
+                Alarm restoredAlarm = new Alarm(persistableBundle.getBoolean(IS_JOB_REPEATABLE),
+                        persistableBundle.getInt(HOUR_TO_JOB_NOTIFICATION),
+                        persistableBundle.getInt(MINUTE_TO_JOB_NOTIFICATION),
+                        persistableBundle.getString(LABEL_TO_JOB_NOTIFICATION));
+                restoredAlarm.setJobId(allPendingJobs.get(i).getId());
+                mJobSchedulerAlarmClocks.add(restoredAlarm);
+            }
         }
 
         mListAdapter = new ListAdapter(mJobSchedulerAlarmClocks);
@@ -268,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
                         mAlarmRepeatable.setText(targetRepeat);
                     }
                     if (mAlarmManagerAlarmClock.getLabel().equals("")) {
-                        mAlarmManagerAlarmClock.setLabel("no label");
+                        mAlarmManagerAlarmClock.setNoLabel();
                     }
                     mAlarmLabel.setText(mAlarmManagerAlarmClock.getLabel());
                     mAlarmTime.setText(mAlarmManagerAlarmClock.getTimeString());
@@ -322,34 +324,35 @@ public class MainActivity extends AppCompatActivity {
     private void restoreAlarmManagerAlarmClock() {
         mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        System.out.println(mAlarmManager.getNextAlarmClock().getShowIntent().getCreatorPackage());
-        mAlarmIntent = mAlarmManager.getNextAlarmClock().getShowIntent();
-        if (mAlarmIntent != null) {
-            if (mAlarmIntent.getCreatorPackage() != null) {
-                if (mAlarmIntent.getCreatorPackage().equals("com.example.batrakov.alarmmanagertask")) {
-                    mAlarmData.setVisibility(View.VISIBLE);
-                    mAlarmLabel.setVisibility(View.VISIBLE);
-                    mAlarmHeader.setVisibility(View.VISIBLE);
-                    mAlarmCancel.setText(getString(R.string.cancel));
+        if (mAlarmManager != null) {
+            mAlarmIntent = mAlarmManager.getNextAlarmClock().getShowIntent();
+            if (mAlarmIntent != null) {
+                if (mAlarmIntent.getCreatorPackage() != null) {
+                    if (mAlarmIntent.getCreatorPackage().equals("com.example.batrakov.alarmmanagertask")) {
+                        mAlarmData.setVisibility(View.VISIBLE);
+                        mAlarmLabel.setVisibility(View.VISIBLE);
+                        mAlarmHeader.setVisibility(View.VISIBLE);
+                        mAlarmCancel.setText(getString(R.string.cancel));
 
-                    mAlarmCancel.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View aView) {
-                            mAlarmManager.cancel(mAlarmIntent);
-                            mAlarmHandler.sendEmptyMessage(ALARM_MANAGER_CLOCK_DONE);
-                        }
-                    });
+                        mAlarmCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View aView) {
+                                mAlarmManager.cancel(mAlarmIntent);
+                                mAlarmHandler.sendEmptyMessage(ALARM_MANAGER_CLOCK_DONE);
+                            }
+                        });
 
-                    mAlarmRepeatable.setChecked(false);
-                    String unknown = "unknown (state can't be restored)";
-                    mAlarmRepeatable.setText(unknown);
-                    mAlarmLabel.setText(unknown);
+                        mAlarmRepeatable.setChecked(false);
+                        String unknown = "unknown (state can't be restored)";
+                        mAlarmRepeatable.setText(unknown);
+                        mAlarmLabel.setText(unknown);
 
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(mAlarmManager.getNextAlarmClock().getTriggerTime());
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTimeInMillis(mAlarmManager.getNextAlarmClock().getTriggerTime());
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.ENGLISH);
 
-                    mAlarmTime.setText(simpleDateFormat.format(calendar.getTime()));
+                        mAlarmTime.setText(simpleDateFormat.format(calendar.getTime()));
+                    }
                 }
             }
         }
@@ -389,7 +392,9 @@ public class MainActivity extends AppCompatActivity {
         builder.setExtras(persistableBundle);
 
         JobInfo jobInfo = builder.build();
-        jobScheduler.schedule(jobInfo);
+        if (jobScheduler != null) {
+            jobScheduler.schedule(jobInfo);
+        }
         aAlarm.setJobId(jobInfo.getId());
         mJobSchedulerAlarmClocks.add(aAlarm);
         mListAdapter.replaceData(mJobSchedulerAlarmClocks);
@@ -459,7 +464,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View aView) {
                         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
-                        jobScheduler.cancel(aAlarm.getJobId());
+                        if (jobScheduler != null) {
+                            jobScheduler.cancel(aAlarm.getJobId());
+                        }
                         mJobSchedulerAlarmClocks.remove(getAdapterPosition());
                         if (getAdapterPosition() == 0) {
                             mListAdapter.notifyDataSetChanged();
@@ -518,16 +525,20 @@ public class MainActivity extends AppCompatActivity {
          */
         void updateItem(int aId) {
             JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            List<JobInfo> allPendingJobs = jobScheduler.getAllPendingJobs();
-            int jobListId = 0;
-            for (int i = 0; i < allPendingJobs.size(); i++) {
-                if (mList.get(i).getJobId() == aId) {
-                    jobListId = i;
-                    break;
+            List<JobInfo> allPendingJobs;
+            if (jobScheduler != null) {
+                allPendingJobs = jobScheduler.getAllPendingJobs();
+                int jobListId = 0;
+                for (int i = 0; i < allPendingJobs.size(); i++) {
+                    if (mList.get(i).getJobId() == aId) {
+                        jobListId = i;
+                        break;
+                    }
                 }
+
+                mList.get(jobListId).setDone();
+                notifyItemChanged(jobListId);
             }
-            mList.get(jobListId).setDone(true);
-            notifyItemChanged(jobListId);
         }
 
         /**

@@ -36,7 +36,9 @@ public class JobSchedulerService extends JobService {
                 .setSmallIcon(R.mipmap.ic_launcher);
         int jobId = aParams.getJobId();
         NotificationManager manager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(jobId, builder.build());
+        if (manager != null) {
+            manager.notify(jobId, builder.build());
+        }
         Message msg = Message.obtain();
         msg.what = MainActivity.JOB_SCHEDULER_CLOCK_DONE;
         msg.arg1 = jobId;

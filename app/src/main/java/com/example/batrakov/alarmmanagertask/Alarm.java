@@ -104,10 +104,9 @@ class Alarm implements Serializable {
     /**
      * Set label.
      *
-     * @param aLabel target label.
      */
-    void setLabel(String aLabel) {
-        mLabel = aLabel;
+    void setNoLabel() {
+        mLabel = "no label";
     }
 
     /**
@@ -122,10 +121,9 @@ class Alarm implements Serializable {
     /**
      * Set clock state.
      *
-     * @param aDone target state.
      */
-    void setDone(boolean aDone) {
-        mDone = aDone;
+    void setDone() {
+        mDone = true;
     }
 
     /**

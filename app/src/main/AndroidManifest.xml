@@ -25,7 +25,8 @@
 
         </activity>
 
-        <receiver android:name=".AlarmReceiver"/>
+        <receiver android:name=".AlarmReceiver"
+            android:permission="android.permission.WAKE_LOCK"/>
 
         <service android:name=".JobSchedulerService"
                  android:permission="android.permission.BIND_JOB_SERVICE"

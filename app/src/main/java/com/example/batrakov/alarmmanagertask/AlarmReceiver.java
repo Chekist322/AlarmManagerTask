@@ -30,7 +30,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
                 .setContentText(aIntent.getStringExtra(EditNoteActivity.LABEL))
                 .setSmallIcon(R.mipmap.ic_launcher);
         NotificationManager manager = (NotificationManager) aContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(NOTIFICATION_ID, builder.build());
+        if (manager != null) {
+            manager.notify(NOTIFICATION_ID, builder.build());
+        }
 
         if (!aIntent.getBooleanExtra(MainActivity.IS_JOB_REPEATABLE, false)) {
             Message msg = Message.obtain();
