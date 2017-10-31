@@ -50,18 +50,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="40dp"
                 android:layout_marginStart="40dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="0dp"
                 android:background="@drawable/edit_text_rect"
                 android:elevation="5dp"
                 android:gravity="center"
                 android:orientation="horizontal">
-
-                <Spinner
-                    android:id="@+id/interval_repeat"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_weight="2"
-                    />
 
                 <TextView
                     android:id="@+id/textView"

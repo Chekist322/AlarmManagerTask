@@ -178,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(allPendingJobs.size());
             PersistableBundle persistableBundle = new PersistableBundle(allPendingJobs.get(i).getExtras());
             Alarm restoredAlarm = new Alarm(persistableBundle.getBoolean(IS_JOB_REPEATABLE),
-                    persistableBundle.getInt(INTERVAL_TO_JOB_NOTIFICATION),
                     persistableBundle.getInt(HOUR_TO_JOB_NOTIFICATION),
                     persistableBundle.getInt(MINUTE_TO_JOB_NOTIFICATION),
                     persistableBundle.getString(LABEL_TO_JOB_NOTIFICATION));
@@ -372,6 +371,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPersisted(true)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_NONE);
         if (aAlarm.isRepeatable()) {
+            System.out.println(aAlarm.getInterval());
             builder.setPeriodic(aAlarm.getInterval() * SECOND_TO_MILLISECOND_MULTIPLIER);
         } else {
             builder.setMinimumLatency(targetCalendar.getTimeInMillis() - calendar.getTimeInMillis());
@@ -570,15 +570,6 @@ public class MainActivity extends AppCompatActivity {
         public int getItemCount() {
             return mList.size();
         }
-
-    }
-
-    /**
-     * Cancel chosen pending job.
-     *
-     * @param aId target pending job id.
-     */
-    void cancelJob(int aId) {
 
     }
 }

@@ -15,12 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -28,24 +25,19 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Activity that provide to create new Alarm and Job clocks and edit Alarm clock.
  * Include TimePickerFragment. Build new Alarm and send it to MainActivity.
  * Child of MainActivity.
  */
-public class EditNoteActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class EditNoteActivity extends AppCompatActivity {
 
     private CheckBox mRepeatableCheckBox;
     private EditText mAlarmLabel;
-    private int mRepeatInterval;
 
     private static int sTimeHour;
     private static int sTimeMinute;
-
-    private int mId;
 
     /**
      * Tag for taken hour.
@@ -76,8 +68,6 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
         setContentView(R.layout.edit_alarm_ativity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         TextView timePicker = (TextView) findViewById(R.id.trigger_time);
-        Spinner intervalChoice = (Spinner) findViewById(R.id.interval_repeat);
-        intervalChoice.setOnItemSelectedListener(this);
         Button confirmButton = (Button) findViewById(R.id.confirm_button);
         Button cancelButton = (Button) findViewById(R.id.cancel_button);
         mRepeatableCheckBox = (CheckBox) findViewById(R.id.checkbox_repeat);
@@ -112,11 +102,6 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
             }
 
         }
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.sec_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        intervalChoice.setAdapter(adapter);
 
         timePicker.setTextColor(getResources().getColorStateList(R.color.text_view_colors, null));
         timePicker.setOnClickListener(new View.OnClickListener() {
@@ -161,20 +146,6 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
             sTimeMinute = bundle.getInt(TIME_MINUTE);
             super.handleMessage(aMsg);
         }
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> aParent, View aView, int aPosition, long aId) {
-        Matcher matcher = Pattern.compile("\\d+").matcher((String) aParent.getItemAtPosition(aPosition));
-        String interval;
-        if (matcher.find()) {
-            interval = matcher.group();
-            mRepeatInterval = Integer.parseInt(interval);
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> aParent) {
     }
 
     /**
@@ -241,7 +212,6 @@ public class EditNoteActivity extends AppCompatActivity implements AdapterView.O
      */
     private void buildAlarm() {
             Intent dataToMainActivity = new Intent().putExtra(ALARM, new Alarm(mRepeatableCheckBox.isChecked(),
-                            mRepeatInterval,
                             sTimeHour,
                             sTimeMinute,
                             String.valueOf(mAlarmLabel.getText())));

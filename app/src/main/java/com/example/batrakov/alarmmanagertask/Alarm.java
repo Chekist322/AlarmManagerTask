@@ -21,14 +21,13 @@ class Alarm implements Serializable {
      * Constructor.
      *
      * @param aRepeatable flag means that alarm is repeatable or not
-     * @param aInterval repeat interval
      * @param aTargetHour trigger hour
      * @param aTargetMinute trigger minute
      * @param aLabel label for alarm clock
      */
-    Alarm(boolean aRepeatable, int aInterval, int aTargetHour, int aTargetMinute, String aLabel) {
+    Alarm(boolean aRepeatable, int aTargetHour, int aTargetMinute, String aLabel) {
         mRepeatable = aRepeatable;
-        mInterval = aInterval;
+        mInterval = 60;
         mTargetHour = aTargetHour;
         mTargetMinute = aTargetMinute;
         mLabel = aLabel;

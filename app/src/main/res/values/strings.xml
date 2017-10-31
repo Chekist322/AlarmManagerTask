@@ -8,10 +8,4 @@
     <string name="start">Start</string>
     <string name="alarm_manager_header">Alarm manager</string>
     <string name="job_scheduler_header">Job scheduler</string>
-    <string-array name="sec_array">
-        <item>10 sec</item>
-        <item>15 sec</item>
-        <item>30 sec</item>
-        <item>60 sec</item>
-    </string-array>
 </resources>
